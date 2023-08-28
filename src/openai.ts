@@ -44,21 +44,20 @@ async function chatgpt(username: string, message: string): Promise<string> {
         }
     } catch (error) {
         console.error("Error during FastGPT API call:", error);
-        if (error.response) {
-            // The request was made and the server responded with a status code outside of the range of 2xx
-            console.error('Response data:', error.response.data);
-            console.error('Response status:', error.response.status);
-            console.error('Response headers:', error.response.headers);
-        } else if (error.request) {
-            // The request was made but no response was received
-            console.error('Request data:', error.request);
-        } else {
-            // Something happened in setting up the request and triggered an error
+        if (error instanceof Error) {
+            // Handle errors that are instances of the Error class
             console.error('Error message:', error.message);
+        } else if (typeof error === 'string') {
+            // Handle errors that are strings
+            console.error('Error string:', error);
+        } else {
+            // Handle all other types of errors
+            console.error('Unknown error:', error);
         }
         return "Sorry, there was an error processing your request.";
     }
 }
+
 
 /**
  * Get image from Dall·E
