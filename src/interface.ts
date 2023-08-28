@@ -10,6 +10,10 @@ export interface IConfig {
   blockWords: string[];
   chatgptBlockWords: string[];
   chatPrivateTriggerKeyword: string;
+  fastgpt_api_endpoint: string;
+  fastgpt_api_key: string;
+  fastgpt_authorization: string;
+
 }
 export interface User {
   username: string,
