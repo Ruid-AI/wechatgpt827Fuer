@@ -12,7 +12,8 @@ export const config: IConfig = {
   temperature: process.env.TEMPERATURE ? parseFloat(process.env.TEMPERATURE) : 0.6,
   blockWords: process.env.BLOCK_WORDS?.split(",") || [],
   chatgptBlockWords: process.env.CHATGPT_BLOCK_WORDS?.split(",") || [],
-  fastgpt_api_endpoint: 'https://fastgpt.run/api/openapi/v1/chat/completion',
-  fastgpt_api_key: 'YOUR_FASTGPT_API_KEY',
-  fastgpt_authorization: 'Bearer YOUR_FASTGPT_AUTHORIZATION_TOKEN'
+  fastgpt_api_endpoint: process.env.FASTGPT_API_ENDPOINT || 'https://fastgpt.run/api/openapi/v1/chat/completion',
+  fastgpt_api_key: process.env.FASTGPT_API_KEY || 'default_api_key',
+  fastgpt_authorization: process.env.FASTGPT_AUTHORIZATION || 'default_authorization'
+
 };
