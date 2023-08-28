@@ -21,32 +21,32 @@ const openai = new OpenAIApi(configuration);
  * @param message
  */
 async function chatgpt(username: string, message: string): Promise<string> {
-  DBUtils.addUserMessage(username, message);
-  const messages = DBUtils.getChatMessage(username);
+    DBUtils.addUserMessage(username, message);
+    const messages = DBUtils.getChatMessage(username);
 
-const response = await axios.post(config.fastgpt_api_endpoint, {
-    chatId: username,
-    messages: messages,
-    detail: true
-}, {
-    headers: {
-        "Authorization": config.fastgpt_authorization,
-        "apikey": config.fastgpt_api_key
+    const response = await axios.post(config.fastgpt_api_endpoint, {
+        chatId: username,
+        messages: messages,
+        detail: true
+    }, {
+        headers: {
+            "Authorization": config.fastgpt_authorization,
+            "apikey": config.fastgpt_api_key
+        }
+    });
+
+    let assistantMessage = "";
+    try {
+        if (response.status === 200) {
+            assistantMessage = response.data.choices[0].message?.content.replace(/^\\n+|\\n+$/g, "") as string;
+        } else {
+            console.log(`Something went wrong, Code: ${response.status}, ${response.statusText}`);
+        }
+    } catch (e) {
+        console.error("Error during API call:", e);
     }
-});
 
-  let assistantMessage = "";
-  try {
-    if (response.status === 200) {
-      assistantMessage = response.data.choices[0].message?.content.replace(/^\\n+|\\n+$/g, "") as string;
-    } else {
-      console.log(`Something went wrong, Code: ${response.status}, ${response.statusText}`);
-    }
-  } catch (e) {
-    console.error("Error during API call:", e);
-  }
-
-  return assistantMessage;
+    return assistantMessage;
 }
 
 /**
