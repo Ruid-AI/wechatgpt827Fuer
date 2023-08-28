@@ -24,29 +24,40 @@ async function chatgpt(username: string, message: string): Promise<string> {
     DBUtils.addUserMessage(username, message);
     const messages = DBUtils.getChatMessage(username);
 
-    const response = await axios.post(config.fastgpt_api_endpoint, {
-        chatId: username,
-        messages: messages,
-        detail: true
-    }, {
-        headers: {
-            "Authorization": config.fastgpt_authorization,
-            "apikey": config.fastgpt_api_key
-        }
-    });
-
-    let assistantMessage = "";
     try {
-        if (response.status === 200) {
-            assistantMessage = response.data.choices[0].message?.content.replace(/^\\n+|\\n+$/g, "") as string;
-        } else {
-            console.log(`Something went wrong, Code: ${response.status}, ${response.statusText}`);
-        }
-    } catch (e) {
-        console.error("Error during API call:", e);
-    }
+        const response = await axios.post(config.fastgpt_api_endpoint, {
+            chatId: username,
+            messages: messages,
+            detail: true
+        }, {
+            headers: {
+                "Authorization": config.fastgpt_authorization,
+                "apikey": config.fastgpt_api_key
+            }
+        });
 
-    return assistantMessage;
+        if (response.status === 200) {
+            return response.data.choices[0].message?.content.replace(/^\\n+|\\n+$/g, "") as string;
+        } else {
+            console.error(`Error with FastGPT API. Status Code: ${response.status}, Status Text: ${response.statusText}`);
+            return "Sorry, there was an error processing your request.";
+        }
+    } catch (error) {
+        console.error("Error during FastGPT API call:", error);
+        if (error.response) {
+            // The request was made and the server responded with a status code outside of the range of 2xx
+            console.error('Response data:', error.response.data);
+            console.error('Response status:', error.response.status);
+            console.error('Response headers:', error.response.headers);
+        } else if (error.request) {
+            // The request was made but no response was received
+            console.error('Request data:', error.request);
+        } else {
+            // Something happened in setting up the request and triggered an error
+            console.error('Error message:', error.message);
+        }
+        return "Sorry, there was an error processing your request.";
+    }
 }
 
 /**
