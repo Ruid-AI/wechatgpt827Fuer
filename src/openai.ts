@@ -6,7 +6,7 @@ import {
 } from "openai";
 import fs from "fs";
 import DBUtils from "./data.js";
-import {config} from "./config.js";
+import {config} from './config';
 import axios from 'axios';
 
 const configuration = new Configuration({
@@ -24,16 +24,16 @@ async function chatgpt(username: string, message: string): Promise<string> {
   DBUtils.addUserMessage(username, message);
   const messages = DBUtils.getChatMessage(username);
 
-  const response = await axios.post('https://fastgpt.run/api/openapi/v1/chat/completion', {
-    chatId: username, // or undefined if you don't want to use chat history
+const response = await axios.post(config.fastgpt_api_endpoint, {
+    chatId: username,
     messages: messages,
     detail: true
-  }, {
+}, {
     headers: {
-      "Authorization": "Bearer fastgpt-z51pkjqm9nrk03a1rx2funoy-642adec15f04d67d4613efdb",
-      "apikey": "fastgpt-r5lbdhot32hvcfd1wg12"
+        "Authorization": config.fastgpt_authorization,
+        "apikey": config.fastgpt_api_key
     }
-  });
+});
 
   let assistantMessage = "";
   try {
