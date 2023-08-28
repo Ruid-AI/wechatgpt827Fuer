@@ -7,6 +7,7 @@ import {
 import fs from "fs";
 import DBUtils from "./data.js";
 import {config} from "./config.js";
+import axios from 'axios';
 
 const configuration = new Configuration({
   apiKey: config.openai_api_key,
@@ -19,27 +20,32 @@ const openai = new OpenAIApi(configuration);
  * @param username
  * @param message
  */
-async function chatgpt(username:string,message: string): Promise<string> {
-  // 先将用户输入的消息添加到数据库中
+async function chatgpt(username: string, message: string): Promise<string> {
   DBUtils.addUserMessage(username, message);
   const messages = DBUtils.getChatMessage(username);
-  const response = await openai.createChatCompletion({
-    model: "gpt-3.5-turbo",
+
+  const response = await axios.post('https://fastgpt.run/api/openapi/v1/chat/completion', {
+    chatId: username, // or undefined if you don't want to use chat history
     messages: messages,
-    temperature: config.temperature,
+    detail: true
+  }, {
+    headers: {
+      "Authorization": "Bearer fastgpt-z51pkjqm9nrk03a1rx2funoy-642adec15f04d67d4613efdb",
+      "apikey": "fastgpt-r5lbdhot32hvcfd1wg12"
+    }
   });
+
   let assistantMessage = "";
   try {
     if (response.status === 200) {
-      assistantMessage = response.data.choices[0].message?.content.replace(/^\n+|\n+$/g, "") as string;
-    }else{
-      console.log(`Something went wrong,Code: ${response.status}, ${response.statusText}`)
+      assistantMessage = response.data.choices[0].message?.content.replace(/^\\n+|\\n+$/g, "") as string;
+    } else {
+      console.log(`Something went wrong, Code: ${response.status}, ${response.statusText}`);
     }
-  }catch (e:any) {
-    if (e.request){
-      console.log("请求出错");
-    }
+  } catch (e) {
+    console.error("Error during API call:", e);
   }
+
   return assistantMessage;
 }
 
